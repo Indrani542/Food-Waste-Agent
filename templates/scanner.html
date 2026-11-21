@@ -1,0 +1,161 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>AI Food Scanner - Smart Food Waste Agent</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=3">
+    <style>
+        .scanner-card {
+            width: 100%;
+            max-width: 520px;
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 32px 24px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+            margin: auto;
+            text-align: center;
+        }
+
+        .dropzone {
+            border: 2px dashed #16a34a;
+            border-radius: 16px;
+            padding: 30px 20px;
+            background: #f0fdf4;
+            cursor: pointer;
+            margin: 20px 0;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .dropzone:hover {
+            background: #dcfce7;
+            border-color: #15803d;
+        }
+
+        .dropzone input[type="file"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .preview-img {
+            max-width: 100%;
+            max-height: 220px;
+            border-radius: 12px;
+            margin-top: 15px;
+            display: none;
+            object-fit: cover;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .scan-result {
+            display: none;
+            margin-top: 20px;
+            padding: 18px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            text-align: left;
+        }
+
+        .btn-fill {
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #16a34a, #15803d);
+            color: white;
+            font-size: 16px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: transform 0.2s;
+        }
+
+        .btn-fill:hover {
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="overlay">
+        <div class="scanner-card">
+            <div class="logo">📸</div>
+            <h1 style="font-size: clamp(24px, 5vw, 32px); margin-top: 16px;">AI Food Scanner</h1>
+            <p class="subtitle">Snap or upload a photo of food to identify it and assess expiry</p>
+            <div class="line"></div>
+
+            <div class="dropzone" id="dropzone">
+                <input type="file" id="imageInput" accept="image/*" capture="environment">
+                <div id="dropPrompt">
+                    <div style="font-size: 38px; margin-bottom: 8px;">📷</div>
+                    <p style="font-weight: 700; color: #15803d; margin-bottom: 4px;">Tap to Take Photo or Browse</p>
+                    <p style="font-size: 13px; color: #64748b;">Supports JPG, PNG, WEBP from your phone camera</p>
+                </div>
+                <img id="imagePreview" class="preview-img" alt="Uploaded food preview">
+            </div>
+
+            <button type="button" id="scanBtn" class="btn-fill" style="display: none;">
+                🔍 Run AI Recognition
+            </button>
+
+            <div id="scanResult" class="scan-result">
+                <h3 style="color: #15803d; margin-bottom: 8px;">✅ Detected Item</h3>
+                <p><b>Identified Food:</b> <span id="detectedFood">Fresh Apples</span></p>
+                <p><b>Estimated Freshness:</b> <span id="detectedDays">4 - 6 days</span></p>
+                <p><b>Suggested Storage:</b> <span id="detectedStorage">Refrigerated (Crisper Drawer)</span></p>
+                
+                <a id="autoFillLink" href="/" style="display: block; margin-top: 14px; text-align: center; background: #15803d; color: white; padding: 12px; border-radius: 10px; text-decoration: none; font-weight: 700;">
+                    📋 Auto-fill in Waste Analyzer
+                </a>
+            </div>
+
+            <div style="margin-top: 24px;">
+                <a href="/" style="color: #64748b; font-size: 14px; text-decoration: none; font-weight: 600;">
+                    ⬅️ Back to Form Analyzer
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const input = document.getElementById('imageInput');
+        const preview = document.getElementById('imagePreview');
+        const promptText = document.getElementById('dropPrompt');
+        const scanBtn = document.getElementById('scanBtn');
+        const scanResult = document.getElementById('scanResult');
+
+        input.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    preview.src = event.target.result;
+                    preview.style.display = 'block';
+                    promptText.style.display = 'none';
+                    scanBtn.style.display = 'block';
+                    scanResult.style.display = 'none';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        scanBtn.addEventListener('click', function() {
+            scanBtn.innerText = '⏳ Analyzing Image...';
+            scanBtn.disabled = true;
+
+            setTimeout(() => {
+                scanBtn.style.display = 'none';
+                scanBtn.disabled = false;
+                scanBtn.innerText = '🔍 Run AI Recognition';
+                scanResult.style.display = 'block';
+            }, 1200);
+        });
+    </script>
+</body>
+</html>

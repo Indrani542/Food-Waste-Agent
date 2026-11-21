@@ -1,0 +1,316 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Analysis Result - Smart Food Waste Agent</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=3">
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            color: #f8fafc;
+            min-height: 100vh;
+            padding: 20px 12px;
+        }
+
+        .result-container {
+            width: 100%;
+            max-width: 780px;
+            margin: 20px auto 40px;
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 32px 24px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .result-header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .result-header h1 {
+            font-size: clamp(24px, 4.5vw, 36px);
+            color: #f1f5f9;
+            margin-bottom: 8px;
+        }
+
+        .score-circle {
+            width: 130px;
+            height: 130px;
+            margin: 18px auto;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 6px solid {{ color }};
+            background: rgba(15, 23, 42, 0.6);
+            box-shadow: 0 0 25px {{ color }}40;
+        }
+
+        .score-num {
+            font-size: 38px;
+            font-weight: 800;
+            color: {{ color }};
+            line-height: 1;
+        }
+
+        .score-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #94a3b8;
+            margin-top: 4px;
+        }
+
+        .risk-badge {
+            display: inline-block;
+            padding: 6px 18px;
+            border-radius: 999px;
+            font-size: 15px;
+            font-weight: 700;
+            background: {{ color }}22;
+            color: {{ color }};
+            border: 1px solid {{ color }}55;
+            margin-top: 6px;
+        }
+
+        .progress-bar-wrap {
+            width: 100%;
+            height: 12px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 999px;
+            overflow: hidden;
+            margin: 20px 0 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: {{ waste_score }}%;
+            background: {{ color }};
+            border-radius: 999px;
+            transition: width 1s ease-in-out;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            margin-top: 24px;
+        }
+
+        .glass-card {
+            background: rgba(15, 23, 42, 0.55);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            border-radius: 18px;
+            padding: 20px;
+        }
+
+        .glass-card h2 {
+            font-size: 18px;
+            color: #38bdf8;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 14px;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            color: #94a3b8;
+        }
+
+        .detail-val {
+            font-weight: 600;
+            color: #f8fafc;
+        }
+
+        .tips-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            margin-top: 14px;
+        }
+
+        .tip-item {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 14px;
+            padding: 16px 12px;
+            text-align: center;
+        }
+
+        .tip-icon {
+            font-size: 26px;
+            margin-bottom: 8px;
+        }
+
+        .tip-item p {
+            font-size: 13px;
+            color: #cbd5e1;
+            line-height: 1.4;
+        }
+
+        .action-btns {
+            margin-top: 28px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .btn-home {
+            flex: 1;
+            min-width: 180px;
+            max-width: 280px;
+            text-align: center;
+            padding: 14px 20px;
+            border-radius: 12px;
+            background: {{ color }};
+            color: #fff;
+            text-decoration: none;
+            font-weight: 700;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 14px {{ color }}40;
+        }
+
+        .btn-home:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px {{ color }}60;
+        }
+
+        .btn-scan {
+            flex: 1;
+            min-width: 180px;
+            max-width: 280px;
+            text-align: center;
+            padding: 14px 20px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #f1f5f9;
+            text-decoration: none;
+            font-weight: 700;
+            transition: background 0.2s;
+        }
+
+        .btn-scan:hover {
+            background: rgba(255, 255, 255, 0.18);
+        }
+
+        @media (max-width: 480px) {
+            .result-container {
+                padding: 22px 16px;
+                border-radius: 20px;
+                margin-top: 10px;
+            }
+
+            .action-btns {
+                flex-direction: column;
+            }
+
+            .btn-home, .btn-scan {
+                max-width: 100%;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="result-container">
+        <div class="result-header">
+            <h1>🥣 Food Waste Analysis</h1>
+            
+            <div class="score-circle">
+                <span class="score-num">{{ waste_score }}%</span>
+                <span class="score-label">Risk Index</span>
+            </div>
+
+            <div class="risk-badge">
+                {{ status }}
+            </div>
+
+            <div class="progress-bar-wrap">
+                <div class="progress-fill"></div>
+            </div>
+        </div>
+
+        <div class="grid-2">
+            <div class="glass-card">
+                <h2>📋 Food Details</h2>
+                <div class="detail-row">
+                    <span class="detail-label">Food Item</span>
+                    <span class="detail-val">{{ food }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Quantity</span>
+                    <span class="detail-val">{{ quantity }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Expiry Days</span>
+                    <span class="detail-val">{{ expiry }} days remaining</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Storage</span>
+                    <span class="detail-val">{{ storage }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Category</span>
+                    <span class="detail-val">{{ category }}</span>
+                </div>
+            </div>
+
+            <div class="glass-card">
+                <h2>🤖 AI Recommendation</h2>
+                <p style="font-size: 17px; font-weight: 700; color: {{ color }}; margin-bottom: 10px;">
+                    {{ recommendation }}
+                </p>
+                <p style="color: #cbd5e1; font-size: 14px; line-height: 1.6;">
+                    Based on your food's shelf life and storage conditions, proactive action is recommended to maximize freshness and prevent unnecessary landfill waste.
+                </p>
+                <div style="margin-top: 14px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 10px; font-size: 13px; color: #94a3b8;">
+                    💡 <b>Action:</b> {{ action_text }}
+                </div>
+            </div>
+        </div>
+
+        <div class="glass-card" style="margin-top: 20px;">
+            <h2>🌱 Smart Waste Reduction Tips</h2>
+            <div class="tips-grid">
+                <div class="tip-item">
+                    <div class="tip-icon">❄️</div>
+                    <p><b>Optimal Storage:</b> Keep dairy and greens at or below 4°C to double preservation.</p>
+                </div>
+                <div class="tip-item">
+                    <div class="tip-icon">🍲</div>
+                    <p><b>Recipe Repurposing:</b> Blend ripe fruits into smoothies or turn veggies into broths.</p>
+                </div>
+                <div class="tip-item">
+                    <div class="tip-icon">❤️</div>
+                    <p><b>Share or Donate:</b> Connect with nearby shelters or neighbors before expiry date.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="action-btns">
+            <a href="/" class="btn-home">⬅️ Analyze Another Item</a>
+            <a href="/scanner" class="btn-scan">📸 Open Food Scanner</a>
+        </div>
+    </div>
+</body>
+</html>
